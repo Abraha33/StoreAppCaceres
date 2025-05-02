@@ -8,21 +8,30 @@ import androidx.navigation.compose.rememberNavController
 
 @Composable
 fun Navigation(){
-    val myNavHostController = rememberNavController()
+    val myNavController = rememberNavController()
     val myStartDestination: String = "login"
     NavHost(
-        navController = myNavHostController,
+        navController = myNavController,
         startDestination = myStartDestination
     ){
         composable("login"){
             LoginScreen(onClickRegister = {
-                myNavHostController.navigate("register")
+                myNavController.navigate("register")
+            }, onSuccessfulLogin = {
+                myNavController.navigate("home"){
+                    popUpTo("Login"){inclusive = true}
+                }
             })
         }
         composable("register"){
             RegisterScreen(onClickBack={
-                myNavHostController.navigate("login")
-            })
+                myNavController.popBackStack()
+            },
+                onSuccessfulRegister = {
+                    myNavController.navigate("home"){
+                        popUpTo(0)
+                    }
+                })
         }
 
     }
