@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "1097198335928",
+    "project_id": "panel2-84961",
+    "storage_bucket": "panel2-84961.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1097198335928:android:a6b82f5b3fdc42ee85814d",
+        "android_client_info": {
+          "package_name": "abraham.caceres.myapplication"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC9whkbwUQaT5ORBTQ5H9uKLQ_EWPFoaJM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1097198335928:android:8cf1f0363f65278085814d",
+        "android_client_info": {
+          "package_name": "abraham.caceres.storeappcaceres"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC9whkbwUQaT5ORBTQ5H9uKLQ_EWPFoaJM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
