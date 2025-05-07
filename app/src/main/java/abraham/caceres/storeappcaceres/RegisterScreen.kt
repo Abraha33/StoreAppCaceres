@@ -18,6 +18,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.Face
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Button
@@ -41,6 +42,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -52,17 +55,21 @@ import com.google.firebase.auth.auth
 @OptIn(ExperimentalMaterial3Api::class)
 @Preview
 @Composable
-fun RegisterScreen(onClickBack: () -> Unit = {}, onSuccessfulRegister : () -> Unit = {}) {
+fun RegisterScreen(
+    onClickBack: () -> Unit = {},
+    onSuccessfulRegister : () -> Unit = {}
+) {
 
     //auth
     val auth = Firebase.auth
     val activity = LocalView.current.context as Activity
 
+    //ESTADO DE LOS INPUTS
     var inputEmail by remember{ mutableStateOf("") }
     var inputPassword by remember{ mutableStateOf("") }
     var inputName by remember { mutableStateOf("") }
     var inputPasswordConfirmation by remember { mutableStateOf("") }
-
+    var passwordVisible by remember { mutableStateOf(false) }
 
     var nameError by remember {mutableStateOf("")}
     var emailError by remember {mutableStateOf("")}
@@ -73,13 +80,12 @@ fun RegisterScreen(onClickBack: () -> Unit = {}, onSuccessfulRegister : () -> Un
     Scaffold(
         topBar = {
             TopAppBar(
-                title ={
-                },
+                title = { },
                 navigationIcon = {
-                    IconButton(onClick = onClickBack){
+                    IconButton(onClick = onClickBack) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back"
+                            contentDescription = "Volver"
                         )
                     }
                 }
@@ -88,13 +94,14 @@ fun RegisterScreen(onClickBack: () -> Unit = {}, onSuccessfulRegister : () -> Un
     ){ innerPadding ->
         Column(
             modifier = Modifier
-            .padding(innerPadding)
-            .fillMaxSize()
-            .padding(horizontal = 32.dp)
-            .imePadding()
-            .verticalScroll(rememberScrollState()),
+                .padding(innerPadding)
+                .fillMaxSize()
+                .padding(horizontal = 32.dp)
+                .imePadding()
+                .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center) {
+            verticalArrangement = Arrangement.Center
+        ) {
             Image(
                 imageVector = Icons.Default.Person,
                 contentDescription = "Icon login",
@@ -157,6 +164,14 @@ fun RegisterScreen(onClickBack: () -> Unit = {}, onSuccessfulRegister : () -> Un
                         contentDescription = "Password Icon"
                     )
                 },
+                trailingIcon = {
+                    IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                        Icon(
+                            imageVector = Icons.Default.Face,
+                            contentDescription = if (passwordVisible) "Ocultar contraseña" else "Mostrar contraseña"
+                        )
+                    }
+                },
                 supportingText = {
                     if (passwordError.isNotEmpty()){
                         Text(
@@ -164,6 +179,7 @@ fun RegisterScreen(onClickBack: () -> Unit = {}, onSuccessfulRegister : () -> Un
                             color = Color.Red)
                     }
                 },
+                visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                 modifier = Modifier.fillMaxWidth()
             )
             Spacer(modifier = Modifier.height(16.dp))
@@ -229,8 +245,12 @@ fun RegisterScreen(onClickBack: () -> Unit = {}, onSuccessfulRegister : () -> Un
             }
 
             Spacer(modifier = Modifier.height(16.dp))
-            TextButton(onClick = onClickBack){
-                Text("Ya tienes cuenta? Inicia Sesión",
+            TextButton(
+                onClick = onClickBack,
+                modifier = Modifier.fillMaxWidth()
+            ){
+                Text(
+                    "¿Ya tienes cuenta? Inicia Sesión",
                     color = Color(0xFFFF9900)
                 )
             }

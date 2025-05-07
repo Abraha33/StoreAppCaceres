@@ -1,38 +1,53 @@
 package abraham.caceres.storeappcaceres
 
+import android.util.Log
 import androidx.compose.runtime.Composable
-import androidx.navigation.Navigation
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 
 @Composable
-fun Navigation(){
-    val myNavController = rememberNavController()
-    val myStartDestination: String = "login"
+fun Navigation() {
+    val navController = rememberNavController()
+
     NavHost(
-        navController = myNavController,
-        startDestination = myStartDestination
+        navController = navController,
+        startDestination = "login"
     ){
-        composable("login"){
-            LoginScreen(onClickRegister = {
-                myNavController.navigate("register")
-            }, onSuccessfulLogin = {
-                myNavController.navigate("home"){
-                    popUpTo("Login"){inclusive = true}
-                }
-            })
-        }
-        composable("register"){
-            RegisterScreen(onClickBack={
-                myNavController.popBackStack()
-            },
-                onSuccessfulRegister = {
-                    myNavController.navigate("home"){
-                        popUpTo(0)
+        composable("login") {
+            Log.d("Navigation", "Mostrando pantalla de login")
+            LoginScreen(
+                onClickRegister = {
+                    Log.d("Navigation", "Intentando navegar a register")
+                    navController.navigate("register")
+                },
+                onSuccessfulLogin = {
+                    navController.navigate("home") {
+                        popUpTo("login") { inclusive = true }
                     }
-                })
+                }
+            )
         }
 
+        composable("register") {
+            Log.d("Navigation", "Mostrando pantalla de registro")
+            RegisterScreen(
+                onClickBack = {
+                    Log.d("Navigation", "Intentando volver atrás")
+                    navController.popBackStack()
+                },
+                onSuccessfulRegister = {
+                    navController.navigate("home") {
+                        popUpTo("login") { inclusive = true }
+                    }
+                }
+            )
+        }
+
+        composable("home") {
+            Log.d("Navigation", "Mostrando pantalla de inicio")
+            HomeScreen()
+        }
     }
 }

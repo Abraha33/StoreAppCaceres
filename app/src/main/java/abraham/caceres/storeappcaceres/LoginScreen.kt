@@ -1,6 +1,8 @@
 package abraham.caceres.storeappcaceres
 
 import android.app.Activity
+import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -8,6 +10,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.Face
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
@@ -21,6 +24,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -38,13 +42,82 @@ fun LoginScreen(
 ) {
     val context = LocalContext.current
     val auth = Firebase.auth
-    val activity = LocalView.current.context as Activity // opcional: validar si es Activity
+    val activity = LocalView.current.context as Activity
 
+    //Estado de los inputs
     var inputEmail by remember { mutableStateOf("") }
     var inputPassword by remember { mutableStateOf("") }
     var loginError by remember { mutableStateOf("") }
     var emailError by remember { mutableStateOf("") }
     var passwordError by remember { mutableStateOf("") }
+    var passwordVisible by remember { mutableStateOf(false) }
+    var showResetDialog by remember { mutableStateOf(false) }
+    var resetEmail by remember { mutableStateOf("") }
+    var resetEmailError by remember { mutableStateOf("") }
+
+    if (showResetDialog) {
+        AlertDialog(
+            onDismissRequest = { showResetDialog = false },
+            title = { Text("Restablecer Contraseña") },
+            text = {
+                Column {
+                    OutlinedTextField(
+                        value = resetEmail,
+                        onValueChange = { resetEmail = it },
+                        label = { Text("Correo electrónico") },
+                        isError = resetEmailError.isNotEmpty(),
+                        supportingText = {
+                            if (resetEmailError.isNotEmpty()) {
+                                Text(text = resetEmailError, color = Color.Red)
+                            }
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        val emailValidation = validationEmail(resetEmail)
+                        resetEmailError = emailValidation.second
+                        
+                        if (emailValidation.first) {
+                            auth.sendPasswordResetEmail(resetEmail)
+                                .addOnCompleteListener { task ->
+                                    if (task.isSuccessful) {
+                                        Toast.makeText(
+                                            context,
+                                            "Se ha enviado un correo para restablecer tu contraseña",
+                                            Toast.LENGTH_LONG
+                                        ).show()
+                                        showResetDialog = false
+                                    } else {
+                                        val errorMessage = when (task.exception) {
+                                            is FirebaseAuthInvalidUserException -> "No existe una cuenta con este correo"
+                                            is FirebaseAuthInvalidCredentialsException -> "El correo electrónico no es válido"
+                                            else -> "Error al enviar el correo de restablecimiento: ${task.exception?.message}"
+                                        }
+                                        resetEmailError = errorMessage
+                                        Toast.makeText(
+                                            context,
+                                            errorMessage,
+                                            Toast.LENGTH_LONG
+                                        ).show()
+                                    }
+                                }
+                        }
+                    }
+                ) {
+                    Text("Enviar")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showResetDialog = false }) {
+                    Text("Cancelar")
+                }
+            }
+        )
+    }
 
     Scaffold { paddingValues ->
         Column(
@@ -107,6 +180,14 @@ fun LoginScreen(
                         contentDescription = null
                     )
                 },
+                trailingIcon = {
+                    IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                        Icon(
+                            imageVector = Icons.Default.Face,
+                            contentDescription = if (passwordVisible) "Ocultar contraseña" else "Mostrar contraseña"
+                        )
+                    }
+                },
                 modifier = Modifier.fillMaxWidth(),
                 isError = passwordError.isNotEmpty(),
                 supportingText = {
@@ -114,7 +195,7 @@ fun LoginScreen(
                         Text(text = passwordError, color = Color.Red)
                     }
                 },
-                visualTransformation = PasswordVisualTransformation(),
+                visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                 keyboardOptions = KeyboardOptions(
                     capitalization = KeyboardCapitalization.None,
                     autoCorrect = false,
@@ -122,7 +203,19 @@ fun LoginScreen(
                 )
             )
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(8.dp))
+
+            TextButton(
+                onClick = { showResetDialog = true },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(
+                    "¿Olvidaste tu contraseña?",
+                    color = Color(0xFFFF9900)
+                )
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
 
             if (loginError.isNotEmpty()) {
                 Text(
@@ -170,8 +263,17 @@ fun LoginScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            TextButton(onClick = onClickRegister) {
-                Text("¿No tienes cuenta? Regístrate", color = Color(0xFFFF9900))
+            TextButton(
+                onClick = {
+                    Log.d("LoginScreen", "Botón de registro presionado")
+                    onClickRegister()
+                },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(
+                    "¿No tienes cuenta? Regístrate",
+                    color = Color(0xFFFF9900)
+                )
             }
         }
     }

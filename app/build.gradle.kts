@@ -60,9 +60,8 @@ dependencies {
     debugImplementation(libs.androidx.ui.test.manifest)
 
     //auth firebase
-    implementation (libs.firebase.auth)
+    implementation(libs.firebase.auth)
 
     //Navigation compose
-
     implementation(libs.androidx.navigation.compose)
 }
